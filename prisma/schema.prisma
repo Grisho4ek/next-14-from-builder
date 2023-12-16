@@ -15,7 +15,7 @@ model Form {
   id          Int      @id @default(autoincrement())
   userId      String
   createdAt   DateTime @default(now())
-  published   Boolean
+  published   Boolean  @default(false)
   name        String
   description String   @default("")
   content     String   @default("[]")
@@ -25,6 +25,8 @@ model Form {
 
   shareUrl       String           @default(uuid())
   FormSubmission FormSubmission[]
+
+  @@unique([userId, name])
 }
 
 model FormSubmission {

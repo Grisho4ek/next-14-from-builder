@@ -5,4 +5,4 @@ export const formSchema = z.object({
   description: z.string().optional(),
 });
 
-export type formShemeType = z.infer<typeof formSchema>;
+export type formShemaType = z.infer<typeof formSchema>;

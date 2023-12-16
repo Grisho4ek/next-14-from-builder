@@ -2,7 +2,7 @@
 
 import { currentUser } from '@clerk/nextjs';
 import prisma from '../lib/prisma';
-import { formShemeType } from '@/schemes/form';
+import { formSchema, formShemaType } from '@/schemes/form';
 
 class UserNotFound extends Error {}
 
@@ -37,4 +37,66 @@ export async function GetFormStats() {
   };
 }
 
-export async function CreateForm(data: formShemeType) {}
+export async function CreateForm(data: formShemaType) {
+  const validation = formSchema.safeParse(data);
+
+  if (!validation.success) {
+    throw new Error('Form not valid');
+  }
+
+  const user = await currentUser();
+
+  if (!user) {
+    throw new UserNotFound();
+  }
+
+  const form = await prisma.form.create({
+    data: {
+      name: data.name,
+      description: data.description,
+      userId: user.id,
+    },
+  });
+
+  if (!user) {
+    throw new Error('Something went wrong');
+  }
+
+  return form.id;
+}
+
+export async function GetForms() {
+  const user = await currentUser();
+
+  if (!user) {
+    throw new UserNotFound();
+  }
+
+  const forms = await prisma.form.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return forms;
+}
+
+export async function GetForm(id: number) {
+  const user = await currentUser();
+
+  if (!user) {
+    throw new UserNotFound();
+  }
+
+  const form = await prisma.form.findUnique({
+    where: {
+      id,
+      userId: user.id,
+    },
+  });
+
+  return form;
+}

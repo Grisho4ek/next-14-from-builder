@@ -19,7 +19,6 @@ import { DialogTitle } from '@radix-ui/react-dialog';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -31,15 +30,24 @@ import { useForm } from 'react-hook-form';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { toast } from './ui/use-toast';
-import { formSchema, formShemeType } from '@/schemes/form';
+import { formSchema, formShemaType } from '@/schemes/form';
+import { CreateForm } from '@/actions/form';
+import { useRouter } from 'next/navigation';
 
 const CreateFormBtn = () => {
-  const form = useForm<formShemeType>({
+  const router = useRouter();
+  const form = useForm<formShemaType>({
     resolver: zodResolver(formSchema),
   });
 
-  async function onSubmit(values: formShemeType) {
+  async function onSubmit(values: formShemaType) {
     try {
+      const formId = await CreateForm(values);
+      toast({
+        title: 'Success',
+        description: 'Form created successfully',
+      });
+      router.push(`/builder/${formId}`);
     } catch (error) {
       toast({
         title: 'Error',
@@ -52,7 +60,15 @@ const CreateFormBtn = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Create new form</Button>
+        <Button
+          className='group flex h-[190px] flex-col items-center justify-center gap-4 border border-dashed border-primary/20 hover:cursor-pointer'
+          variant='outline'
+        >
+          <BsFileEarmarkPlus className='h-8 w-8 text-muted-foreground group-hover:text-primary' />
+          <p className='text-xl font-bold text-muted-foreground group-hover:text-primary'>
+            Create new form
+          </p>
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
